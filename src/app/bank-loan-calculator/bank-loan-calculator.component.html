@@ -1,2 +1,69 @@
-<p>bank-loan-calculator works!</p>
-<button (click)="onClick()">Click</button>
+<div class="container">
+
+    <div class="row">
+        <div class="col-md-12">
+            <form [formGroup]="formGroup" (ngSubmit)="onSubmit()">
+                <mat-card>
+                    <mat-card-title>Bank Loan Calculator</mat-card-title>
+
+                    <div class="w-100">
+                        <mat-form-field appearance="fill">
+                            <mat-label>Amount borrowed</mat-label>
+                            <input matInput type="number" step="1000" placeholder="€ 100000" formControlName="amount">
+                        </mat-form-field>
+                        <div *ngIf="isValidInput('amount')" class="alert alert-danger">
+                            Amount should be greater than zero
+                        </div>
+                    </div>
+
+                    <div class="w-100">
+                        <mat-form-field appearance="fill">
+                            <mat-label>Anual interest rate (%)</mat-label>
+                            <input matInput type="number" placeholder="6%" step="1" formControlName="anualInterestRate">
+                        </mat-form-field>
+                    </div>
+                    <div *ngIf="isValidInput('anualInterestRate')" class="alert alert-danger">
+                        Anual interest rate should be greater than 0 and less than 100
+                    </div>
+
+                    <div class="w-100">
+                        <mat-form-field appearance="fill">
+                            <mat-label>Period of loan (months)</mat-label>
+                            <input matInput type="number" step="1" placeholder="360" formControlName="periodInMonths">
+                        </mat-form-field>
+                    </div>
+                    <div *ngIf="isValidInput('periodInMonths')" class="alert alert-danger">
+                        Period should be greater than 0 and less than 480 (40 years)
+                    </div>
+                    <mat-card-actions align="end">
+                        <button mat-button (click)="clearControls()">CLEAR</button>
+                        <button mat-button type="submit" [disabled]="!formGroup.valid">CALCULATE</button>
+                    </mat-card-actions>
+
+                </mat-card>
+            </form>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-md-12">
+            <mat-card>
+
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <td>Monthly Payment</td>
+                            <td *ngIf="!monthlyPayment">N/A</td>
+                            <td *ngIf="monthlyPayment">{{monthlyPayment | currency:'EUR'}} </td>
+                        </tr>
+                        <tr>
+                            <td>Total Repayment</td>
+                            <td *ngIf="!totalRepayment">N/A</td>
+                            <td *ngIf="totalRepayment">{{totalRepayment | currency:'EUR'}} </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </mat-card>
+        </div>
+    </div>
+</div>
