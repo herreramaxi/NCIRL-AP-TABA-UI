@@ -42,13 +42,17 @@ export class BankLoanCalculatorComponent implements OnInit {
         catchError(err => this.handleError(err, 1)),
         finalize(() => this.loading.next(false))
       )
-      .subscribe(r => {
-        const monthlyPaymentValue = parseFloat(r.toString());
+      .subscribe((r: any) => {
+        const monthlyPaymentValue = parseFloat(r.value.toString());
+
+        if (monthlyPaymentValue <= 0)
+          return;
+
         this.monthlyPayment = monthlyPaymentValue.toFixed(2);
 
         this.http.get(`api/totalrepayment/${monthlyPaymentValue}/${periodInMonths}`)
-          .subscribe(s => {
-            this.totalRepayment = parseFloat(s.toString()).toFixed(2);
+          .subscribe((s: any) => {
+            this.totalRepayment = parseFloat(s.value.toString()).toFixed(2);
           });
       });
   }
@@ -64,7 +68,7 @@ export class BankLoanCalculatorComponent implements OnInit {
 
     console.log(errorMessage);
 
-    return of(0);
+    return of(-1);
   }
 
   clearControls() {
