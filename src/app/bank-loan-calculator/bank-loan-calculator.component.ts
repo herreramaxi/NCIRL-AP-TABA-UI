@@ -18,7 +18,7 @@ export class BankLoanCalculatorComponent implements OnInit {
 
   constructor(private http: HttpClient, private fb: FormBuilder) {
     this.formGroup = this.fb.group({
-      amount: ['', [Validators.required]],
+      amount: ['', [Validators.required, Validators.min(1), Validators.max(2000000)]],
       anualInterestRate: ['', [Validators.required, Validators.min(0.00001), Validators.max(100)]],
       periodInMonths: ['', [Validators.required, Validators.min(1), Validators.max(480)]]
     });
