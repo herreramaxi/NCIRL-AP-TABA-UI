@@ -1,9 +1,7 @@
-.bHTAQj {
-  margin-top: 0.25rem;
-  font-family: aspira-regular, sans-serif;
-  text-transform: none;
-  font-size: 0.75rem;
-  color: rgb(227, 40, 55);
-  min-height: 1rem;
-  visibility: visible;
+mat-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
 }

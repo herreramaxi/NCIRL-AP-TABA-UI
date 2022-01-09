@@ -1,5 +1,6 @@
 <div class="container">
 
+    <mat-spinner *ngIf="loading | async"></mat-spinner>
     <div class="row">
         <div class="col-md-12">
             <form [formGroup]="formGroup" (ngSubmit)="onSubmit()">
@@ -36,8 +37,9 @@
                         Period should be greater than 0 and less than 480 (40 years)
                     </div>
                     <mat-card-actions align="end">
-                        <button mat-button (click)="clearControls()">CLEAR</button>
-                        <button mat-button type="submit" [disabled]="!formGroup.valid">CALCULATE</button>
+                        <button mat-button (click)="clearControls()" [disabled]="loading| async">CLEAR</button>
+                        <button mat-button type="submit"
+                            [disabled]="!formGroup.valid || (loading| async)">CALCULATE</button>
                     </mat-card-actions>
 
                 </mat-card>

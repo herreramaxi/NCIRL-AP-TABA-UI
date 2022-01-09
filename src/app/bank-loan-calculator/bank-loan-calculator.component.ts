@@ -1,6 +1,7 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { BehaviorSubject, catchError, finalize, Observable, of, retry, tap, throwError } from 'rxjs';
 
 @Component({
   selector: 'app-bank-loan-calculator',
@@ -13,6 +14,7 @@ export class BankLoanCalculatorComponent implements OnInit {
   formGroup: FormGroup;
   monthlyPayment: string | undefined;
   totalRepayment: string | undefined;
+  loading = new BehaviorSubject<boolean>(false);
 
   constructor(private http: HttpClient, private fb: FormBuilder) {
     this.formGroup = this.fb.group({
@@ -32,18 +34,37 @@ export class BankLoanCalculatorComponent implements OnInit {
     var anualInterestRate = this.formGroup.get('anualInterestRate')?.value;
     var periodInMonths = this.formGroup.get('periodInMonths')?.value;
 
-    var url = `api/monthlypayment/${anualInterestRate}/${periodInMonths}/${amount}`;
-    this.http.get(url).subscribe(r => {
-      if (!r) return;
+    this.loading.next(true);
 
-      const monthlyPaymentValue = parseFloat(r.toString());
-      this.monthlyPayment = monthlyPaymentValue.toFixed(2);
+    this.http.get(`api/monthlypayment/${anualInterestRate}/${periodInMonths}/${amount}`)
+      .pipe(
+        retry(3),
+        catchError(err => this.handleError(err, 1)),
+        finalize(() => this.loading.next(false))
+      )
+      .subscribe(r => {
+        const monthlyPaymentValue = parseFloat(r.toString());
+        this.monthlyPayment = monthlyPaymentValue.toFixed(2);
 
-      this.http.get(`api/totalrepayment/${monthlyPaymentValue}/${periodInMonths}`).subscribe(s => {
-        if (!s) return;
-        this.totalRepayment = parseFloat(s.toString()).toFixed(2);
+        this.http.get(`api/totalrepayment/${monthlyPaymentValue}/${periodInMonths}`)
+          .subscribe(s => {
+            this.totalRepayment = parseFloat(s.toString()).toFixed(2);
+          });
       });
-    })
+  }
+
+  handleError(error: HttpErrorResponse, customErrorCode: any) {
+    let errorMessage = '';
+    if (error.error instanceof ErrorEvent) {
+      errorMessage = `Error: ${error.error.message}`;
+    } else {
+      errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
+    }
+    errorMessage += ", customErrorCode: " + customErrorCode;
+
+    console.log(errorMessage);
+
+    return of(0);
   }
 
   clearControls() {
